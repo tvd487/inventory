@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { CategoryForm } from '@/components/forms/category-form';
+import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/lib/hooks/useInventory';
 import { Category } from '@/types/inventory';
 import { FolderOpen, Plus } from 'lucide-react';
@@ -15,8 +17,15 @@ import { FolderOpen, Plus } from 'lucide-react';
 export default function CategoriesPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [showForm, setShowForm] = useState(false);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    category: Category | null;
+  }>({
+    isOpen: false,
+    category: null,
+  });
 
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
@@ -41,7 +50,7 @@ export default function CategoriesPage() {
   const handleCreateCategory = (data: any) => {
     createCategory.mutate(data, {
       onSuccess: () => {
-        setShowForm(false);
+        setShowCategoryDialog(false);
         setEditingCategory(null);
       },
     });
@@ -51,7 +60,7 @@ export default function CategoriesPage() {
     if (editingCategory) {
       updateCategory.mutate({ ...data, id: editingCategory.id }, {
         onSuccess: () => {
-          setShowForm(false);
+          setShowCategoryDialog(false);
           setEditingCategory(null);
         },
       });
@@ -59,14 +68,30 @@ export default function CategoriesPage() {
   };
 
   const handleDeleteCategory = (category: Category) => {
-    if (confirm(`Are you sure you want to delete "${category.name}"?`)) {
-      deleteCategory.mutate(category.id);
+    setDeleteDialog({
+      isOpen: true,
+      category,
+    });
+  };
+
+  const confirmDelete = () => {
+    if (deleteDialog.category) {
+      deleteCategory.mutate(deleteDialog.category.id, {
+        onSuccess: () => {
+          setDeleteDialog({ isOpen: false, category: null });
+        },
+      });
     }
   };
 
   const handleEditCategory = (category: Category) => {
     setEditingCategory(category);
-    setShowForm(true);
+    setShowCategoryDialog(true);
+  };
+
+  const handleAddCategory = () => {
+    setEditingCategory(null);
+    setShowCategoryDialog(true);
   };
 
   const columns = [
@@ -86,37 +111,6 @@ export default function CategoriesPage() {
     },
   ];
 
-  if (showForm) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">
-              {editingCategory ? 'Edit Category' : 'Create Category'}
-            </h1>
-            <Button onClick={() => setShowForm(false)} variant="outline">
-              Back to Categories
-            </Button>
-          </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Category Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CategoryForm
-                category={editingCategory || undefined}
-                onSubmit={editingCategory ? handleUpdateCategory : handleCreateCategory}
-                onCancel={() => setShowForm(false)}
-                loading={createCategory.isPending || updateCategory.isPending}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <div className="max-w-7xl mx-auto">
@@ -125,7 +119,7 @@ export default function CategoriesPage() {
             <FolderOpen className="h-8 w-8" />
             <h1 className="text-3xl font-bold">Categories</h1>
           </div>
-          <Button onClick={() => setShowForm(true)}>
+          <Button onClick={handleAddCategory}>
             <Plus className="h-4 w-4 mr-2" />
             Add Category
           </Button>
@@ -141,6 +135,34 @@ export default function CategoriesPage() {
           searchPlaceholder="Search categories..."
         />
       </div>
+
+      {/* Category Form Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {editingCategory ? 'Edit Category' : 'Create Category'}
+            </DialogTitle>
+          </DialogHeader>
+          <CategoryForm
+            category={editingCategory || undefined}
+            onSubmit={editingCategory ? handleUpdateCategory : handleCreateCategory}
+            onCancel={() => setShowCategoryDialog(false)}
+            loading={createCategory.isPending || updateCategory.isPending}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, category: null })}
+        onConfirm={confirmDelete}
+        title="Delete Category"
+        description="Are you sure you want to delete"
+        itemName={deleteDialog.category?.name}
+        loading={deleteCategory.isPending}
+      />
     </div>
   );
 } 

@@ -10,6 +10,8 @@ import { DataTable } from '@/components/ui/data-table';
 import { ProductForm } from '@/components/forms/product-form';
 import { CategoryForm } from '@/components/forms/category-form';
 import { SupplierForm } from '@/components/forms/supplier-form';
+import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useProducts, useCategories, useSuppliers, useCreateProduct, useUpdateProduct, useDeleteProduct } from '@/lib/hooks/useInventory';
 import { Product, Category, Supplier } from '@/types/inventory';
 import { Badge } from '@/components/ui/badge';
@@ -18,10 +20,17 @@ import { Package, Edit, Trash2, Plus } from 'lucide-react';
 export default function ProductsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [showForm, setShowForm] = useState(false);
+  const [showProductDialog, setShowProductDialog] = useState(false);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [showSupplierDialog, setShowSupplierDialog] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const [showSupplierForm, setShowSupplierForm] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    product: Product | null;
+  }>({
+    isOpen: false,
+    product: null,
+  });
 
   const { data: products = [], isLoading: productsLoading } = useProducts();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
@@ -48,7 +57,7 @@ export default function ProductsPage() {
   const handleCreateProduct = (data: any) => {
     createProduct.mutate(data, {
       onSuccess: () => {
-        setShowForm(false);
+        setShowProductDialog(false);
         setEditingProduct(null);
       },
     });
@@ -58,7 +67,7 @@ export default function ProductsPage() {
     if (editingProduct) {
       updateProduct.mutate({ ...data, id: editingProduct.id }, {
         onSuccess: () => {
-          setShowForm(false);
+          setShowProductDialog(false);
           setEditingProduct(null);
         },
       });
@@ -66,14 +75,30 @@ export default function ProductsPage() {
   };
 
   const handleDeleteProduct = (product: Product) => {
-    if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
-      deleteProduct.mutate(product.id);
+    setDeleteDialog({
+      isOpen: true,
+      product,
+    });
+  };
+
+  const confirmDelete = () => {
+    if (deleteDialog.product) {
+      deleteProduct.mutate(deleteDialog.product.id, {
+        onSuccess: () => {
+          setDeleteDialog({ isOpen: false, product: null });
+        },
+      });
     }
   };
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
-    setShowForm(true);
+    setShowProductDialog(true);
+  };
+
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    setShowProductDialog(true);
   };
 
   const columns = [
@@ -128,39 +153,6 @@ export default function ProductsPage() {
     },
   ];
 
-  if (showForm) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">
-              {editingProduct ? 'Edit Product' : 'Create Product'}
-            </h1>
-            <Button onClick={() => setShowForm(false)} variant="outline">
-              Back to Products
-            </Button>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Product Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ProductForm
-                product={editingProduct || undefined}
-                categories={categories}
-                suppliers={suppliers}
-                onSubmit={editingProduct ? handleUpdateProduct : handleCreateProduct}
-                onCancel={() => setShowForm(false)}
-                loading={createProduct.isPending || updateProduct.isPending}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <div className="max-w-7xl mx-auto">
@@ -170,13 +162,13 @@ export default function ProductsPage() {
             <h1 className="text-3xl font-bold">Products</h1>
           </div>
           <div className="flex space-x-2">
-            <Button onClick={() => setShowCategoryForm(true)} variant="outline">
+            <Button onClick={() => setShowCategoryDialog(true)} variant="outline">
               Manage Categories
             </Button>
-            <Button onClick={() => setShowSupplierForm(true)} variant="outline">
+            <Button onClick={() => setShowSupplierDialog(true)} variant="outline">
               Manage Suppliers
             </Button>
-            <Button onClick={() => setShowForm(true)}>
+            <Button onClick={handleAddProduct}>
               <Plus className="h-4 w-4 mr-2" />
               Add Product
             </Button>
@@ -194,31 +186,61 @@ export default function ProductsPage() {
         />
       </div>
 
-      {/* Category Form Modal */}
-      {showCategoryForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Manage Categories</h2>
-            <CategoryForm
-              onSubmit={() => {}}
-              onCancel={() => setShowCategoryForm(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Product Form Dialog */}
+      <Dialog open={showProductDialog} onOpenChange={setShowProductDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingProduct ? 'Edit Product' : 'Create Product'}
+            </DialogTitle>
+          </DialogHeader>
+          <ProductForm
+            product={editingProduct || undefined}
+            categories={categories}
+            suppliers={suppliers}
+            onSubmit={editingProduct ? handleUpdateProduct : handleCreateProduct}
+            onCancel={() => setShowProductDialog(false)}
+            loading={createProduct.isPending || updateProduct.isPending}
+          />
+        </DialogContent>
+      </Dialog>
 
-      {/* Supplier Form Modal */}
-      {showSupplierForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Manage Suppliers</h2>
-            <SupplierForm
-              onSubmit={() => {}}
-              onCancel={() => setShowSupplierForm(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Category Form Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Categories</DialogTitle>
+          </DialogHeader>
+          <CategoryForm
+            onSubmit={() => {}}
+            onCancel={() => setShowCategoryDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Supplier Form Dialog */}
+      <Dialog open={showSupplierDialog} onOpenChange={setShowSupplierDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Suppliers</DialogTitle>
+          </DialogHeader>
+          <SupplierForm
+            onSubmit={() => {}}
+            onCancel={() => setShowSupplierDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, product: null })}
+        onConfirm={confirmDelete}
+        title="Delete Product"
+        description="Are you sure you want to delete"
+        itemName={deleteDialog.product?.name}
+        loading={deleteProduct.isPending}
+      />
     </div>
   );
 }
