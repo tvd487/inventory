@@ -34,7 +34,7 @@ export function verifyRefreshToken(token: string): TokenPayload | null {
 
 export function getTokenExpiration(token: string): number | null {
   try {
-    const decoded = jwt.decode(token) as any;
+    const decoded = jwt.decode(token) as jwt.JwtPayload | null;
     return decoded?.exp ? decoded.exp * 1000 : null;
   } catch {
     return null;
