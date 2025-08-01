@@ -1,18 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { SupplierForm } from '@/components/forms/supplier-form';
 import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useSuppliers, useCreateSupplier, useUpdateSupplier, useDeleteSupplier } from '@/lib/hooks/useInventory';
+import { useCreateSupplier, useDeleteSupplier, useSuppliers, useUpdateSupplier } from '@/lib/hooks/useInventory';
 import { Supplier } from '@/types/inventory';
-import { Truck, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function SuppliersPage() {
   const { data: session, status } = useSession();
@@ -40,7 +38,7 @@ export default function SuppliersPage() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Loading...</div>;
   }
 
   if (!session) {
@@ -100,30 +98,32 @@ export default function SuppliersPage() {
     { key: 'phone', label: 'Phone', sortable: true },
     { key: 'contactPerson', label: 'Contact Person', sortable: true },
     { key: 'website', label: 'Website', sortable: true },
-    { 
-      key: 'createdAt', 
-      label: 'Created', 
+    {
+      key: 'createdAt',
+      label: 'Created',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString()
+      render: (value: string) => new Date(value).toLocaleDateString(),
     },
-    { 
-      key: 'updatedAt', 
-      label: 'Updated', 
+    {
+      key: 'updatedAt',
+      label: 'Updated',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString()
+      render: (value: string) => new Date(value).toLocaleDateString(),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+    <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-2">
-            <Truck className="h-8 w-8" />
+          <div>
             <h1 className="text-3xl font-bold">Suppliers</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage your product suppliers and vendor information.
+            </p>
           </div>
           <Button onClick={handleAddSupplier}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2"/>
             Add Supplier
           </Button>
         </div>
@@ -168,4 +168,4 @@ export default function SuppliersPage() {
       />
     </div>
   );
-} 
+}

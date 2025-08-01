@@ -1,18 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { CategoryForm } from '@/components/forms/category-form';
 import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/lib/hooks/useInventory';
+import { useCategories, useCreateCategory, useDeleteCategory, useUpdateCategory } from '@/lib/hooks/useInventory';
 import { Category } from '@/types/inventory';
-import { FolderOpen, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function CategoriesPage() {
   const { data: session, status } = useSession();
@@ -40,7 +38,7 @@ export default function CategoriesPage() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Loading...</div>;
   }
 
   if (!session) {
@@ -97,30 +95,32 @@ export default function CategoriesPage() {
   const columns = [
     { key: 'name', label: 'Name', sortable: true },
     { key: 'description', label: 'Description', sortable: true },
-    { 
-      key: 'createdAt', 
-      label: 'Created', 
+    {
+      key: 'createdAt',
+      label: 'Created',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString()
+      render: (value: string) => new Date(value).toLocaleDateString(),
     },
-    { 
-      key: 'updatedAt', 
-      label: 'Updated', 
+    {
+      key: 'updatedAt',
+      label: 'Updated',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString()
+      render: (value: string) => new Date(value).toLocaleDateString(),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+    <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-2">
-            <FolderOpen className="h-8 w-8" />
+          <div>
             <h1 className="text-3xl font-bold">Categories</h1>
+            <p className="text-muted-foreground mt-2">
+              Organize your products by categories for better inventory management.
+            </p>
           </div>
           <Button onClick={handleAddCategory}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2"/>
             Add Category
           </Button>
         </div>
@@ -165,4 +165,4 @@ export default function CategoriesPage() {
       />
     </div>
   );
-} 
+}

@@ -1,21 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { ProductForm } from '@/components/forms/product-form';
 import { CategoryForm } from '@/components/forms/category-form';
 import { SupplierForm } from '@/components/forms/supplier-form';
 import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useProducts, useCategories, useSuppliers, useCreateProduct, useUpdateProduct, useDeleteProduct } from '@/lib/hooks/useInventory';
-import { Product, Category, Supplier } from '@/types/inventory';
+import {
+  useCategories,
+  useCreateProduct,
+  useDeleteProduct,
+  useProducts,
+  useSuppliers,
+  useUpdateProduct,
+} from '@/lib/hooks/useInventory';
+import { Category, Product, Supplier } from '@/types/inventory';
 import { Badge } from '@/components/ui/badge';
-import { Package, Edit, Trash2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function ProductsPage() {
   const { data: session, status } = useSession();
@@ -47,7 +52,7 @@ export default function ProductsPage() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Loading...</div>;
   }
 
   if (!session) {
@@ -108,7 +113,7 @@ export default function ProductsPage() {
       key: 'price',
       label: 'Price',
       sortable: true,
-      render: (value: number) => `$${value}`
+      render: (value: number) => `$${value}`,
     },
     {
       key: 'quantity',
@@ -121,7 +126,7 @@ export default function ProductsPage() {
             {value}
           </Badge>
         );
-      }
+      },
     },
     {
       key: 'status',
@@ -131,7 +136,7 @@ export default function ProductsPage() {
         <Badge variant={value === 'ACTIVE' ? 'default' : 'secondary'}>
           {value}
         </Badge>
-      )
+      ),
     },
     {
       key: 'categoryId',
@@ -140,7 +145,7 @@ export default function ProductsPage() {
       render: (value: number) => {
         const category = categories.find(c => c.id === value);
         return category?.name || '-';
-      }
+      },
     },
     {
       key: 'supplierId',
@@ -149,17 +154,19 @@ export default function ProductsPage() {
       render: (value: number) => {
         const supplier = suppliers.find(s => s.id === value);
         return supplier?.name || '-';
-      }
+      },
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+    <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-2">
-            <Package className="h-8 w-8" />
+          <div>
             <h1 className="text-3xl font-bold">Products</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage your inventory products, categories, and suppliers.
+            </p>
           </div>
           <div className="flex space-x-2">
             <Button onClick={() => setShowCategoryDialog(true)} variant="outline">
@@ -169,7 +176,7 @@ export default function ProductsPage() {
               Manage Suppliers
             </Button>
             <Button onClick={handleAddProduct}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2"/>
               Add Product
             </Button>
           </div>
@@ -212,7 +219,8 @@ export default function ProductsPage() {
             <DialogTitle>Manage Categories</DialogTitle>
           </DialogHeader>
           <CategoryForm
-            onSubmit={() => {}}
+            onSubmit={() => {
+            }}
             onCancel={() => setShowCategoryDialog(false)}
           />
         </DialogContent>
@@ -225,7 +233,8 @@ export default function ProductsPage() {
             <DialogTitle>Manage Suppliers</DialogTitle>
           </DialogHeader>
           <SupplierForm
-            onSubmit={() => {}}
+            onSubmit={() => {
+            }}
             onCancel={() => setShowSupplierDialog(false)}
           />
         </DialogContent>

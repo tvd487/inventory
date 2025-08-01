@@ -1,12 +1,10 @@
 'use client';
 
-import { signOut, useSession } from 'next-auth/react';
+import React, { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { Package, FolderOpen, Truck, BarChart3, Users, Settings } from 'lucide-react';
+import { BarChart3, FolderOpen, Package, Settings, Truck, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -20,7 +18,7 @@ export default function DashboardPage() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Loading...</div>;
   }
 
   if (!session) {
@@ -73,14 +71,13 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+    <div className="p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-8">
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <div className="flex items-center gap-4">
-            <ThemeToggle/>
-            <Button onClick={() => signOut()}>Sign Out</Button>
-          </div>
+          <p className="text-muted-foreground mt-2">
+            Welcome back! Here's an overview of your inventory management system.
+          </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -90,7 +87,7 @@ export default function DashboardPage() {
                 <CardHeader>
                   <div className="flex items-center space-x-2">
                     <div className={`p-2 rounded-lg ${card.color} text-white`}>
-                      <card.icon className="h-6 w-6" />
+                      <card.icon className="h-6 w-6"/>
                     </div>
                     <CardTitle>{card.title}</CardTitle>
                   </div>
@@ -106,31 +103,35 @@ export default function DashboardPage() {
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>User Information</CardTitle>
+              <CardTitle>Recent Activity</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <p><strong>ID:</strong> {session.user.id}</p>
-                <p><strong>Username:</strong> {session.user.username}</p>
-                <p><strong>Email:</strong> {session.user.email || 'N/A'}</p>
-                <p><strong>Name:</strong> {session.user.name || 'N/A'}</p>
-              </div>
+              <p className="text-muted-foreground">No recent activity to display.</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Token Information</CardTitle>
+              <CardTitle>Quick Stats</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <p><strong>Access Token:</strong> {session.accessToken.substring(0, 20)}...</p>
-                <p><strong>Refresh Token:</strong> {session.refreshToken.substring(0, 20)}...</p>
-                <p><strong>Token Expires:</strong> {
-                  session.tokenExpires
-                    ? new Date(session.tokenExpires).toLocaleString()
-                    : 'N/A'
-                }</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-sm text-muted-foreground">Total Products</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-sm text-muted-foreground">Categories</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-sm text-muted-foreground">Suppliers</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-sm text-muted-foreground">Low Stock Items</p>
+                </div>
               </div>
             </CardContent>
           </Card>

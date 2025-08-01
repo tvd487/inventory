@@ -1,17 +1,17 @@
-import 'next-auth'
-import { UserRole, UserStatus } from '@prisma/client'
+import 'next-auth';
+import { UserRole, UserStatus } from '@prisma/client';
 
 declare module 'next-auth' {
   interface User {
-    id: string
-    username: string
-    email?: string | null
-    name?: string | null
-    role: UserRole
-    status: UserStatus
-    accessToken: string
-    refreshToken: string
-    tokenExpires: number | null
+    id: string;
+    username: string;
+    email?: string | null;
+    name?: string | null;
+    role: UserRole;
+    status: UserStatus;
+    accessToken: string;
+    refreshToken: string;
+    tokenExpires: number | null;
   }
 
   interface Session {
@@ -20,22 +20,23 @@ declare module 'next-auth' {
       username: string
       email?: string | null
       name?: string | null
+      image?: string | null
       role: UserRole
       status: UserStatus
-    }
-    accessToken: string
-    refreshToken: string
-    tokenExpires: number | null
+    };
+    accessToken: string;
+    refreshToken: string;
+    tokenExpires: number | null;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    accessToken: string
-    refreshToken: string
-    tokenExpires: number | null
-    username: string
-    role: UserRole
-    status: UserStatus
+    accessToken: string;
+    refreshToken: string;
+    tokenExpires: number | null;
+    username: string;
+    role: UserRole;
+    status: UserStatus;
   }
 }
