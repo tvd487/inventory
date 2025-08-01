@@ -5,6 +5,49 @@ import { prisma } from '@/lib/prisma'
 import { generateAccessToken, generateRefreshToken, getTokenExpiration } from '@/lib/jwt'
 import { UserStatus } from '@prisma/client'
 
+// Add refresh token function
+async function refreshAccessToken(token: any) {
+  try {
+    // Get user from database to verify refresh token
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(token.sub!) }
+    })
+
+    if (!user || user.refreshToken !== token.refreshToken) {
+      throw new Error('Invalid refresh token')
+    }
+
+    // Generate new tokens
+    const tokenPayload = {
+      userId: user.id,
+      username: user.username,
+      role: user.role
+    }
+    const newAccessToken = generateAccessToken(tokenPayload)
+    const newRefreshToken = generateRefreshToken(tokenPayload)
+
+    // Update refresh token in database
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: newRefreshToken }
+    })
+
+    return {
+      ...token,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      tokenExpires: getTokenExpiration(newAccessToken),
+      error: undefined
+    }
+  } catch (error) {
+    console.error('Error refreshing access token:', error)
+    return {
+      ...token,
+      error: 'RefreshAccessTokenError'
+    }
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -65,14 +108,23 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // Initial sign in
         token.accessToken = user.accessToken
         token.refreshToken = user.refreshToken
         token.tokenExpires = user.tokenExpires
         token.username = user.username
         token.role = user.role
         token.status = user.status
+        return token
       }
-      return token
+
+      // Return previous token if the access token has not expired yet
+      if (Date.now() < (token.tokenExpires as number)) {
+        return token
+      }
+
+      // Access token has expired, try to update it
+      return await refreshAccessToken(token)
     },
     async session({ session, token }) {
       session.user.id = token.sub!
@@ -82,6 +134,7 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = token.accessToken as string
       session.refreshToken = token.refreshToken as string
       session.tokenExpires = token.tokenExpires as number
+      session.error = token.error
       return session
     }
   },
