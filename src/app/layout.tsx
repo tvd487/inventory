@@ -3,12 +3,13 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/components/session-provider'
+import { ReactQueryProvider } from '@/lib/react-query'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'My Next.js App',
-  description: 'A Next.js app with authentication and themes',
+  title: 'Inventory Management System',
+  description: 'A comprehensive inventory management system with authentication and themes',
 }
 
 export default function RootLayout({
@@ -26,7 +27,9 @@ export default function RootLayout({
       disableTransitionOnChange
     >
       <AuthProvider>
-        {children}
+        <ReactQueryProvider>
+          {children}
+        </ReactQueryProvider>
       </AuthProvider>
     </ThemeProvider>
     </body>
