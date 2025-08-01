@@ -1,147 +1,53 @@
-import { PrismaClient, UserRole, UserStatus } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient, UserRole, UserStatus } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting seed...')
+  console.log('🌱 Starting seed...');
 
-  // Create permissions
-  console.log('📝 Creating permissions...')
+  // Create permissions (existing code)
+  console.log('📝 Creating permissions...');
   const permissions = await Promise.all([
     prisma.permission.upsert({
       where: { name: 'user:read' },
       update: {},
-      create: {
-        name: 'user:read',
-        description: 'Read user information'
-      }
+      create: { name: 'user:read', description: 'Read user information' },
     }),
     prisma.permission.upsert({
       where: { name: 'user:write' },
       update: {},
-      create: {
-        name: 'user:write',
-        description: 'Create and update users'
-      }
+      create: { name: 'user:write', description: 'Create and update users' },
     }),
     prisma.permission.upsert({
       where: { name: 'user:delete' },
       update: {},
-      create: {
-        name: 'user:delete',
-        description: 'Delete users'
-      }
+      create: { name: 'user:delete', description: 'Delete users' },
     }),
     prisma.permission.upsert({
       where: { name: 'admin:access' },
       update: {},
-      create: {
-        name: 'admin:access',
-        description: 'Access admin panel'
-      }
+      create: { name: 'admin:access', description: 'Access admin panel' },
     }),
     prisma.permission.upsert({
-      where: { name: 'content:moderate' },
+      where: { name: 'inventory:read' },
       update: {},
-      create: {
-        name: 'content:moderate',
-        description: 'Moderate content'
-      }
-    })
-  ])
-
-  // Create roles
-  console.log('👥 Creating roles...')
-  const adminRole = await prisma.role.upsert({
-    where: { name: 'admin' },
-    update: {},
-    create: {
-      name: 'admin',
-      description: 'Administrator with full access'
-    }
-  })
-
-  const moderatorRole = await prisma.role.upsert({
-    where: { name: 'moderator' },
-    update: {},
-    create: {
-      name: 'moderator',
-      description: 'Moderator with limited admin access'
-    }
-  })
-
-  const userRole = await prisma.role.upsert({
-    where: { name: 'user' },
-    update: {},
-    create: {
-      name: 'user',
-      description: 'Regular user'
-    }
-  })
-
-  // Assign permissions to roles
-  console.log('🔗 Assigning permissions to roles...')
-
-  // Admin gets all permissions
-  for (const permission of permissions) {
-    await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: adminRole.id,
-          permissionId: permission.id
-        }
-      },
+      create: { name: 'inventory:read', description: 'Read inventory data' },
+    }),
+    prisma.permission.upsert({
+      where: { name: 'inventory:write' },
       update: {},
-      create: {
-        roleId: adminRole.id,
-        permissionId: permission.id
-      }
-    })
-  }
-
-  // Moderator gets content moderation and user read permissions
-  const moderatorPermissions = permissions.filter(p =>
-    ['user:read', 'content:moderate'].includes(p.name)
-  )
-  for (const permission of moderatorPermissions) {
-    await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: moderatorRole.id,
-          permissionId: permission.id
-        }
-      },
+      create: { name: 'inventory:write', description: 'Create and update inventory' },
+    }),
+    prisma.permission.upsert({
+      where: { name: 'inventory:delete' },
       update: {},
-      create: {
-        roleId: moderatorRole.id,
-        permissionId: permission.id
-      }
-    })
-  }
+      create: { name: 'inventory:delete', description: 'Delete inventory items' },
+    }),
+  ]);
 
-  // User gets only read permission
-  const userPermissions = permissions.filter(p => p.name === 'user:read')
-  for (const permission of userPermissions) {
-    await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: userRole.id,
-          permissionId: permission.id
-        }
-      },
-      update: {},
-      create: {
-        roleId: userRole.id,
-        permissionId: permission.id
-      }
-    })
-  }
-
-  // Create users
-  console.log('👤 Creating users...')
-
-  // Admin user
+  // Create users (existing code with admin user)
+  console.log('👤 Creating users...');
   await prisma.user.upsert({
     where: { username: 'admin' },
     update: {},
@@ -151,90 +57,161 @@ async function main() {
       name: 'System Administrator',
       password: await bcrypt.hash('admin123', 12),
       role: UserRole.ADMIN,
-      status: UserStatus.ACTIVE
-    }
-  })
-
-  // Moderator user
-  await prisma.user.upsert({
-    where: { username: 'moderator' },
-    update: {},
-    create: {
-      username: 'moderator',
-      email: 'moderator@example.com',
-      name: 'Content Moderator',
-      password: await bcrypt.hash('mod123', 12),
-      role: UserRole.MODERATOR,
-      status: UserStatus.ACTIVE
-    }
-  })
-
-  // Regular users
-  const regularUsers = [
-    {
-      username: 'john_doe',
-      email: 'john@example.com',
-      name: 'John Doe',
-      password: 'user123'
+      status: UserStatus.ACTIVE,
     },
-    {
-      username: 'jane_smith',
-      email: 'jane@example.com',
-      name: 'Jane Smith',
-      password: 'user123'
-    },
-    {
-      username: 'bob_wilson',
-      email: 'bob@example.com',
-      name: 'Bob Wilson',
-      password: 'user123'
-    }
-  ]
+  });
 
-  for (const userData of regularUsers) {
-    await prisma.user.upsert({
-      where: { username: userData.username },
+  // Create categories
+  console.log('📂 Creating categories...');
+  const categories = await Promise.all([
+    prisma.category.upsert({
+      where: { name: 'Electronics' },
       update: {},
       create: {
-        username: userData.username,
-        email: userData.email,
-        name: userData.name,
-        password: await bcrypt.hash(userData.password, 12),
-        role: UserRole.USER,
-        status: UserStatus.ACTIVE
-      }
-    })
+        name: 'Electronics',
+        description: 'Electronic devices and components',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Clothing' },
+      update: {},
+      create: {
+        name: 'Clothing',
+        description: 'Apparel and fashion items',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Books' },
+      update: {},
+      create: {
+        name: 'Books',
+        description: 'Books and educational materials',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Home & Garden' },
+      update: {},
+      create: {
+        name: 'Home & Garden',
+        description: 'Home improvement and garden supplies',
+      },
+    }),
+  ]);
+
+  // Create suppliers
+  console.log('🏪 Creating suppliers...');
+  const suppliers = await Promise.all([
+    prisma.supplier.upsert({
+      where: { name: 'Tech Solutions Ltd' },
+      update: {},
+      create: {
+        name: 'Tech Solutions Ltd',
+        email: 'contact@techsolutions.com',
+        phone: '+1-555-0123',
+        address: '123 Tech Street, Silicon Valley, CA 94000',
+        contactPerson: 'John Smith',
+        website: 'https://techsolutions.com',
+      },
+    }),
+    prisma.supplier.upsert({
+      where: { name: 'Fashion Forward Inc' },
+      update: {},
+      create: {
+        name: 'Fashion Forward Inc',
+        email: 'orders@fashionforward.com',
+        phone: '+1-555-0456',
+        address: '456 Fashion Ave, New York, NY 10001',
+        contactPerson: 'Sarah Johnson',
+        website: 'https://fashionforward.com',
+      },
+    }),
+    prisma.supplier.upsert({
+      where: { name: 'Book Distributors Co' },
+      update: {},
+      create: {
+        name: 'Book Distributors Co',
+        email: 'sales@bookdist.com',
+        phone: '+1-555-0789',
+        address: '789 Library Lane, Boston, MA 02101',
+        contactPerson: 'Mike Wilson',
+      },
+    }),
+  ]);
+
+  // Create products
+  console.log('📦 Creating products...');
+  const products = [
+    {
+      name: 'Laptop Computer',
+      description: 'High-performance laptop for business use',
+      sku: 'LAPTOP-001',
+      barcode: '1234567890123',
+      price: 999.99,
+      cost: 750.00,
+      quantity: 25,
+      minQuantity: 5,
+      categoryId: categories[0].id, // Electronics
+      supplierId: suppliers[0].id,
+    },
+    {
+      name: 'Wireless Mouse',
+      description: 'Ergonomic wireless mouse with USB receiver',
+      sku: 'MOUSE-001',
+      barcode: '1234567890124',
+      price: 29.99,
+      cost: 15.00,
+      quantity: 100,
+      minQuantity: 20,
+      categoryId: categories[0].id, // Electronics
+      supplierId: suppliers[0].id,
+    },
+    {
+      name: 'Cotton T-Shirt',
+      description: '100% cotton comfortable t-shirt',
+      sku: 'TSHIRT-001',
+      barcode: '1234567890125',
+      price: 19.99,
+      cost: 8.00,
+      quantity: 50,
+      minQuantity: 10,
+      categoryId: categories[1].id, // Clothing
+      supplierId: suppliers[1].id,
+    },
+    {
+      name: 'Programming Book',
+      description: 'Complete guide to modern programming',
+      sku: 'BOOK-001',
+      barcode: '1234567890126',
+      price: 49.99,
+      cost: 25.00,
+      quantity: 30,
+      minQuantity: 5,
+      categoryId: categories[2].id, // Books
+      supplierId: suppliers[2].id,
+    },
+  ];
+
+  for (const productData of products) {
+    await prisma.product.upsert({
+      where: { sku: productData.sku },
+      update: {},
+      create: productData,
+    });
   }
 
-  // Create a guest user
-  await prisma.user.upsert({
-    where: { username: 'guest' },
-    update: {},
-    create: {
-      username: 'guest',
-      email: 'guest@example.com',
-      name: 'Guest User',
-      password: await bcrypt.hash('guest123', 12),
-      role: UserRole.GUEST,
-      status: UserStatus.ACTIVE
-    }
-  })
-
-  console.log('✅ Seed completed successfully!')
-  console.log('\n📋 Created users:')
-  console.log('- admin / admin123 (ADMIN)')
-  console.log('- moderator / mod123 (MODERATOR)')
-  console.log('- john_doe / user123 (USER)')
-  console.log('- jane_smith / user123 (USER)')
-  console.log('- bob_wilson / user123 (USER)')
-  console.log('- guest / guest123 (GUEST)')
+  console.log('✅ Seed completed successfully!');
+  console.log('\n📋 Sample data created:');
+  console.log('- 4 Categories');
+  console.log('- 3 Suppliers');
+  console.log('- 4 Products');
+  console.log('- Admin user: admin / admin123');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seed failed:', e)
-    process.exit(1)
+    console.error('❌ Seed failed:', e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

@@ -21,6 +21,12 @@ enum UserStatus {
   PENDING
 }
 
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+}
+
 model User {
   id           Int        @id @default(autoincrement())
   username     String     @unique
@@ -71,12 +77,69 @@ model Session {
   @@map("sessions")
 }
 
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Supplier {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  email         String?  @unique
+  phone         String?
+  address       String?  @db.Text
+  contactPerson String?
+  website       String?
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@map("suppliers")
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?       @db.Text
+  sku         String        @unique
+  barcode     String?       @unique
+  price       Decimal       @db.Decimal(10, 2)
+  cost        Decimal?      @db.Decimal(10, 2)
+  quantity    Int           @default(0)
+  minQuantity Int           @default(0)
+  maxQuantity Int?
+  status      ProductStatus @default(ACTIVE)
+  categoryId  Int
+  supplierId  Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  category Category @relation(fields: [categoryId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@index([categoryId])
+  @@index([supplierId])
+  @@index([sku])
+  @@map("products")
+}
+
 model Permission {
   id          Int     @id @default(autoincrement())
   name        String  @unique
   description String?
 
-  // Many-to-many relation with roles
   roles RolePermission[]
 
   @@map("permissions")
@@ -87,7 +150,6 @@ model Role {
   name        String  @unique
   description String?
 
-  // Many-to-many relation with permissions
   permissions RolePermission[]
 
   @@map("roles")
