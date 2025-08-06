@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { supplierSchema } from '@/lib/validations';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import {authOptions} from "@/lib/auth/authOptions";
+import {supplierSchema} from "@/lib/validations/inventory";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export async function GET(
     }
 
     const supplier = await prisma.supplier.findUnique({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt((await params).id) },
       include: {
         products: {
           select: { id: true, name: true, sku: true },
@@ -36,7 +36,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -48,7 +48,7 @@ export async function PUT(
     const validatedData = supplierSchema.parse(body);
 
     const supplier = await prisma.supplier.update({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt((await params).id) },
       data: validatedData,
     });
 
@@ -64,7 +64,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -74,7 +74,7 @@ export async function DELETE(
 
     // Check if supplier has products
     const productsCount = await prisma.product.count({
-      where: { supplierId: parseInt(params.id) },
+      where: { supplierId: parseInt((await params).id) },
     });
 
     if (productsCount > 0) {
@@ -84,7 +84,7 @@ export async function DELETE(
     }
 
     await prisma.supplier.delete({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt((await params).id) },
     });
 
     return NextResponse.json({ message: 'Supplier deleted successfully' });

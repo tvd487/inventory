@@ -18,7 +18,7 @@ export default function DashboardPage() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <div className="flex items-center justify-center h-full">Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Đang tải...</div>;
   }
 
   if (!session) {
@@ -27,43 +27,43 @@ export default function DashboardPage() {
 
   const navigationCards = [
     {
-      title: 'Products',
-      description: 'Manage your inventory products',
+      title: 'Sản phẩm',
+      description: 'Quản lý sản phẩm trong kho hàng',
       icon: Package,
       href: '/dashboard/products',
       color: 'bg-blue-500',
     },
     {
-      title: 'Categories',
-      description: 'Organize products by categories',
+      title: 'Danh mục',
+      description: 'Tổ chức sản phẩm theo danh mục',
       icon: FolderOpen,
       href: '/dashboard/categories',
       color: 'bg-green-500',
     },
     {
-      title: 'Suppliers',
-      description: 'Manage your product suppliers',
+      title: 'Nhà cung cấp',
+      description: 'Quản lý nhà cung cấp sản phẩm',
       icon: Truck,
       href: '/dashboard/suppliers',
       color: 'bg-purple-500',
     },
     {
-      title: 'Analytics',
-      description: 'View inventory analytics and reports',
+      title: 'Phân tích',
+      description: 'Xem báo cáo và phân tích kho hàng',
       icon: BarChart3,
       href: '/dashboard/analytics',
       color: 'bg-orange-500',
     },
     {
-      title: 'Users',
-      description: 'Manage system users and permissions',
+      title: 'Người dùng',
+      description: 'Quản lý người dùng và quyền hạn',
       icon: Users,
       href: '/dashboard/users',
       color: 'bg-red-500',
     },
     {
-      title: 'Settings',
-      description: 'Configure system settings',
+      title: 'Cài đặt',
+      description: 'Cấu hình hệ thống',
       icon: Settings,
       href: '/dashboard/settings',
       color: 'bg-gray-500',
@@ -74,9 +74,9 @@ export default function DashboardPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl font-bold">Bảng điều khiển</h1>
           <p className="text-muted-foreground mt-2">
-            Welcome back! Here's an overview of your inventory management system.
+            Chào mừng trở lại! Đây là tổng quan hệ thống quản lý kho hàng của bạn.
           </p>
         </div>
 

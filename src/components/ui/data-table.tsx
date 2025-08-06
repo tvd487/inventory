@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, Plus, Search } from 'lucide-react';
+import { Edit, Trash2, Plus, Search, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Column {
   key: string;
@@ -95,7 +96,7 @@ export function DataTable({
     if (typeof value === 'boolean') {
       return (
         <Badge variant={value ? 'default' : 'secondary'}>
-          {value ? 'Yes' : 'No'}
+          {value ? 'Có' : 'Không'}
         </Badge>
       );
     }
@@ -119,7 +120,7 @@ export function DataTable({
           {onCreate && (
             <Button onClick={onCreate} size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add New
+              Thêm mới
             </Button>
           )}
         </div>
@@ -168,7 +169,7 @@ export function DataTable({
                   ))}
                   {(onEdit || onDelete) && (
                     <th className="text-right p-2 font-medium text-sm">
-                      Actions
+                      Thao tác
                     </th>
                   )}
                 </tr>
@@ -180,7 +181,7 @@ export function DataTable({
                       colSpan={columns.length + (onEdit || onDelete ? 1 : 0)}
                       className="text-center py-8 text-muted-foreground"
                     >
-                      No data found
+                      Không tìm thấy dữ liệu
                     </td>
                   </tr>
                 ) : (

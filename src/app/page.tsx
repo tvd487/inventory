@@ -21,25 +21,25 @@ export default function HomePage() {
 
       <div className="text-center space-y-6">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-          Welcome to My Next.js App
+          Chào mừng bạn đến với TV Logistics
         </h1>
 
         {session ? (
           <div className="space-y-4">
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              Hello, {session.user.username}!
+              Xin chào, {session.user.username}!
             </p>
             <Button onClick={() => router.push('/dashboard')}>
-              Go to Dashboard
+              Vào trang quản lý
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              Please sign in to access your dashboard
+              Vui lòng đăng nhập trước khi vào trang quản lý
             </p>
             <Button onClick={() => router.push('/auth/signin')}>
-              Sign In
+              Đăng nhập
             </Button>
           </div>
         )}

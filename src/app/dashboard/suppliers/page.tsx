@@ -38,7 +38,7 @@ export default function SuppliersPage() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <div className="flex items-center justify-center h-full">Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Đang tải...</div>;
   }
 
   if (!session) {
@@ -93,22 +93,22 @@ export default function SuppliersPage() {
   };
 
   const columns = [
-    { key: 'name', label: 'Name', sortable: true },
+    { key: 'name', label: 'Tên', sortable: true },
     { key: 'email', label: 'Email', sortable: true },
-    { key: 'phone', label: 'Phone', sortable: true },
-    { key: 'contactPerson', label: 'Contact Person', sortable: true },
+    { key: 'phone', label: 'Điện thoại', sortable: true },
+    { key: 'contactPerson', label: 'Người liên hệ', sortable: true },
     { key: 'website', label: 'Website', sortable: true },
     {
       key: 'createdAt',
-      label: 'Created',
+      label: 'Ngày tạo',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString(),
+      render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
     },
     {
       key: 'updatedAt',
-      label: 'Updated',
+      label: 'Ngày cập nhật',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString(),
+      render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
     },
   ];
 
@@ -117,25 +117,25 @@ export default function SuppliersPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Suppliers</h1>
+            <h1 className="text-3xl font-bold">Nhà cung cấp</h1>
             <p className="text-muted-foreground mt-2">
-              Manage your product suppliers and vendor information.
+              Quản lý nhà cung cấp và thông tin đối tác.
             </p>
           </div>
           <Button onClick={handleAddSupplier}>
             <Plus className="h-4 w-4 mr-2"/>
-            Add Supplier
+            Thêm nhà cung cấp
           </Button>
         </div>
 
         <DataTable
-          title="Suppliers"
+          title="Nhà cung cấp"
           data={suppliers}
           columns={columns}
           onEdit={handleEditSupplier}
           onDelete={handleDeleteSupplier}
           loading={suppliersLoading}
-          searchPlaceholder="Search suppliers..."
+          searchPlaceholder="Tìm kiếm nhà cung cấp..."
         />
       </div>
 
@@ -144,7 +144,7 @@ export default function SuppliersPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingSupplier ? 'Edit Supplier' : 'Create Supplier'}
+              {editingSupplier ? 'Chỉnh sửa nhà cung cấp' : 'Tạo nhà cung cấp mới'}
             </DialogTitle>
           </DialogHeader>
           <SupplierForm
@@ -161,8 +161,8 @@ export default function SuppliersPage() {
         isOpen={deleteDialog.isOpen}
         onClose={() => setDeleteDialog({ isOpen: false, supplier: null })}
         onConfirm={confirmDelete}
-        title="Delete Supplier"
-        description="Are you sure you want to delete"
+        title="Xóa nhà cung cấp"
+        description="Bạn có chắc chắn muốn xóa"
         itemName={deleteDialog.supplier?.name}
         loading={deleteSupplier.isPending}
       />

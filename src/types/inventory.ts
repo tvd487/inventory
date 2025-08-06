@@ -22,9 +22,12 @@ export interface Category {
   id: number;
   name: string;
   description?: string;
+  parentId?: number;
   createdAt: string;
   updatedAt: string;
   products?: Product[];
+  parent?: Category;
+  children?: Category[];
 }
 
 export interface Supplier {
@@ -63,6 +66,7 @@ export interface UpdateProductRequest extends Partial<CreateProductRequest> {
 export interface CreateCategoryRequest {
   name: string;
   description?: string;
+  parentId?: number;
 }
 
 export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {
@@ -81,4 +85,4 @@ export interface CreateSupplierRequest {
 
 export interface UpdateSupplierRequest extends Partial<CreateSupplierRequest> {
   id: number;
-} 
+}

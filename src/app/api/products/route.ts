@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { productSchema } from '@/lib/validations';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import {authOptions} from "@/lib/auth/authOptions";
+import {productSchema} from "@/lib/validations/inventory";
 
 export async function GET(request: NextRequest) {
   try {
@@ -77,8 +77,27 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = productSchema.parse(body);
 
+    // Filter out undefined values and ensure required fields are present
+    const productData = {
+      ...validatedData,
+      price: validatedData.price,
+      categoryId: validatedData.categoryId,
+      supplierId: validatedData.supplierId,
+    };
+
+    // Validate that required fields are not undefined
+    if (productData.price === undefined) {
+      return NextResponse.json({ error: 'Giá sản phẩm là bắt buộc' }, { status: 400 });
+    }
+    if (productData.categoryId === undefined) {
+      return NextResponse.json({ error: 'Danh mục là bắt buộc' }, { status: 400 });
+    }
+    if (productData.supplierId === undefined) {
+      return NextResponse.json({ error: 'Nhà cung cấp là bắt buộc' }, { status: 400 });
+    }
+
     const product = await prisma.product.create({
-      data: validatedData,
+      data: productData,
       include: {
         category: { select: { id: true, name: true } },
         supplier: { select: { id: true, name: true } },

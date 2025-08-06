@@ -1,15 +1,16 @@
 'use client';
 
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { productSchema, ProductFormData } from '@/lib/validations/inventory';
-import { Product, Category, Supplier } from '@/types/inventory';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Label} from '@/components/ui/label';
+import {Textarea} from '@/components/ui/textarea';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
+import {ProductFormData, productSchema} from '@/lib/validations/inventory';
+import {Category, Product, Supplier} from '@/types/inventory';
+import {formatCategoryName} from '@/lib/utils';
 
 interface ProductFormProps {
   product?: Product;
@@ -21,17 +22,17 @@ interface ProductFormProps {
 }
 
 export function ProductForm({
-  product,
-  categories,
-  suppliers,
-  onSubmit,
-  onCancel,
-  loading = false,
-}: ProductFormProps) {
+                              product,
+                              categories,
+                              suppliers,
+                              onSubmit,
+                              onCancel,
+                              loading = false,
+                            }: ProductFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: {errors},
     setValue,
     watch,
   } = useForm<ProductFormData>({
@@ -51,8 +52,8 @@ export function ProductForm({
       supplierId: product.supplierId,
     } : {
       status: 'ACTIVE',
-      quantity: 0,
-      minQuantity: 0,
+      quantity: 1,
+      minQuantity: 1,
     },
   });
 
@@ -64,11 +65,11 @@ export function ProductForm({
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Name *</Label>
+          <Label htmlFor="name">Tên *</Label>
           <Input
             id="name"
             {...register('name')}
-            placeholder="Product name"
+            placeholder="Tên sản phẩm"
           />
           {errors.name && (
             <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -80,7 +81,7 @@ export function ProductForm({
           <Input
             id="sku"
             {...register('sku')}
-            placeholder="Stock keeping unit"
+            placeholder="Mã sản phẩm"
           />
           {errors.sku && (
             <p className="text-sm text-destructive">{errors.sku.message}</p>
@@ -88,11 +89,11 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="barcode">Barcode</Label>
+          <Label htmlFor="barcode">Mã vạch</Label>
           <Input
             id="barcode"
             {...register('barcode')}
-            placeholder="Product barcode"
+            placeholder="Mã vạch sản phẩm"
           />
           {errors.barcode && (
             <p className="text-sm text-destructive">{errors.barcode.message}</p>
@@ -100,13 +101,19 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="price">Price *</Label>
+          <Label htmlFor="price">Giá *</Label>
           <Input
             id="price"
             type="number"
             step="0.01"
-            {...register('price', { valueAsNumber: true })}
-            placeholder="0.00"
+            {...register('price', {
+              setValueAs: (value) => {
+                if (!value || value === '') return 0;
+                const num = parseFloat(value);
+                return isNaN(num) ? 0 : num;
+              }
+            })}
+            placeholder="0.00 ₫"
           />
           {errors.price && (
             <p className="text-sm text-destructive">{errors.price.message}</p>
@@ -114,13 +121,21 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="cost">Cost</Label>
+          <Label htmlFor="cost">Chi phí</Label>
           <Input
             id="cost"
             type="number"
             step="0.01"
-            {...register('cost', { valueAsNumber: true })}
-            placeholder="0.00"
+            min="0"
+            {...register('cost', {
+                setValueAs: (value) => {
+                  if (!value || value === '') return undefined;
+                  const num = parseFloat(value);
+                  return isNaN(num) ? undefined : num;
+                }
+              }
+            )}
+            placeholder="0.00 ₫"
           />
           {errors.cost && (
             <p className="text-sm text-destructive">{errors.cost.message}</p>
@@ -128,11 +143,18 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="quantity">Quantity *</Label>
+          <Label htmlFor="quantity">Số lượng *</Label>
           <Input
             id="quantity"
             type="number"
-            {...register('quantity', { valueAsNumber: true })}
+            step="1"
+            {...register('quantity', {
+              setValueAs: (value) => {
+                if (!value) return 1;
+                const num = parseInt(value);
+                return isNaN(num) ? 1 : num;
+              }
+            })}
             placeholder="0"
           />
           {errors.quantity && (
@@ -141,11 +163,17 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="minQuantity">Minimum Quantity *</Label>
+          <Label htmlFor="minQuantity">Số lượng tối thiểu *</Label>
           <Input
             id="minQuantity"
             type="number"
-            {...register('minQuantity', { valueAsNumber: true })}
+            {...register('minQuantity', {
+              setValueAs: (value) => {
+                if (!value) return 1;
+                const num = parseInt(value);
+                return isNaN(num) ? 1 : num;
+              }
+            })}
             placeholder="0"
           />
           {errors.minQuantity && (
@@ -154,12 +182,19 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="maxQuantity">Maximum Quantity</Label>
+          <Label htmlFor="maxQuantity">Số lượng tối đa</Label>
           <Input
             id="maxQuantity"
             type="number"
-            {...register('maxQuantity', { valueAsNumber: true })}
-            placeholder="Optional"
+            min="0"
+            {...register('maxQuantity', {
+              setValueAs: (value) => {
+                if (!value) return 0;
+                const num = parseInt(value);
+                return isNaN(num) ? 0 : num;
+              }
+            })}
+            placeholder="Tùy chọn"
           />
           {errors.maxQuantity && (
             <p className="text-sm text-destructive">{errors.maxQuantity.message}</p>
@@ -167,18 +202,18 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
+          <Label htmlFor="status">Trạng thái</Label>
           <Select
             value={watch('status')}
             onValueChange={(value) => setValue('status', value as 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED')}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select status" />
+              <SelectValue placeholder="Chọn trạng thái"/>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ACTIVE">Active</SelectItem>
-              <SelectItem value="INACTIVE">Inactive</SelectItem>
-              <SelectItem value="DISCONTINUED">Discontinued</SelectItem>
+              <SelectItem value="ACTIVE">Hoạt động</SelectItem>
+              <SelectItem value="INACTIVE">Không hoạt động</SelectItem>
+              <SelectItem value="DISCONTINUED">Ngừng kinh doanh</SelectItem>
             </SelectContent>
           </Select>
           {errors.status && (
@@ -187,18 +222,20 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="categoryId">Category *</Label>
+          <Label htmlFor="categoryId">Danh mục *</Label>
           <Select
             value={watch('categoryId')?.toString() || ''}
-            onValueChange={(value) => setValue('categoryId', parseInt(value))}
+            onValueChange={(value) => {
+              setValue('categoryId', value ? parseInt(value) : 0);
+            }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder="Chọn danh mục"/>
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id.toString()}>
-                  {category.name}
+                  {formatCategoryName(category)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -209,13 +246,13 @@ export function ProductForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="supplierId">Supplier *</Label>
+          <Label htmlFor="supplierId">Nhà cung cấp *</Label>
           <Select
-            value={watch('supplierId')?.toString() || ''}
+            value={watch('supplierId')?.toString() || '0'}
             onValueChange={(value) => setValue('supplierId', parseInt(value))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select supplier" />
+              <SelectValue placeholder="Chọn nhà cung cấp"/>
             </SelectTrigger>
             <SelectContent>
               {suppliers.map((supplier) => (
@@ -232,11 +269,11 @@ export function ProductForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">Mô tả</Label>
         <Textarea
           id="description"
           {...register('description')}
-          placeholder="Product description"
+          placeholder="Mô tả sản phẩm"
           rows={3}
         />
         {errors.description && (
@@ -246,12 +283,12 @@ export function ProductForm({
 
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          Hủy
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : product ? 'Update Product' : 'Create Product'}
+          {loading ? 'Đang lưu...' : product ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'}
         </Button>
       </div>
     </form>
   );
-} 
+}

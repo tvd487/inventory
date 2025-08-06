@@ -55,7 +55,7 @@ async function main() {
       username: 'admin',
       email: 'admin@example.com',
       name: 'System Administrator',
-      password: await bcrypt.hash('admin123', 12),
+      password: await bcrypt.hash('tvLogistics@2025', 12),
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
     },
@@ -94,6 +94,56 @@ async function main() {
       create: {
         name: 'Home & Garden',
         description: 'Home improvement and garden supplies',
+      },
+    }),
+  ]);
+
+  // Create subcategories
+  console.log('📂 Creating subcategories...');
+  const subcategories = await Promise.all([
+    prisma.category.upsert({
+      where: { name: 'Computers' },
+      update: {},
+      create: {
+        name: 'Computers',
+        description: 'Desktop and laptop computers',
+        parentId: categories[0].id, // Electronics
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Mobile Phones' },
+      update: {},
+      create: {
+        name: 'Mobile Phones',
+        description: 'Smartphones and mobile devices',
+        parentId: categories[0].id, // Electronics
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Men\'s Clothing' },
+      update: {},
+      create: {
+        name: 'Men\'s Clothing',
+        description: 'Clothing for men',
+        parentId: categories[1].id, // Clothing
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Women\'s Clothing' },
+      update: {},
+      create: {
+        name: 'Women\'s Clothing',
+        description: 'Clothing for women',
+        parentId: categories[1].id, // Clothing
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Programming Books' },
+      update: {},
+      create: {
+        name: 'Programming Books',
+        description: 'Books about programming and software development',
+        parentId: categories[2].id, // Books
       },
     }),
   ]);

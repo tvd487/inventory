@@ -52,7 +52,7 @@ export default function ProductsPage() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <div className="flex items-center justify-center h-full">Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Đang tải...</div>;
   }
 
   if (!session) {
@@ -107,17 +107,17 @@ export default function ProductsPage() {
   };
 
   const columns = [
-    { key: 'name', label: 'Name', sortable: true },
+    { key: 'name', label: 'Tên', sortable: true },
     { key: 'sku', label: 'SKU', sortable: true },
     {
       key: 'price',
-      label: 'Price',
+      label: 'Giá',
       sortable: true,
-      render: (value: number) => `$${value}`,
+      render: (value: number) => `${value.toLocaleString('vi-VN')} ₫`,
     },
     {
       key: 'quantity',
-      label: 'Quantity',
+      label: 'Số lượng',
       sortable: true,
       render: (value: number, row: Product) => {
         const isLow = value <= row.minQuantity;
@@ -130,17 +130,17 @@ export default function ProductsPage() {
     },
     {
       key: 'status',
-      label: 'Status',
+      label: 'Trạng thái',
       sortable: true,
       render: (value: string) => (
         <Badge variant={value === 'ACTIVE' ? 'default' : 'secondary'}>
-          {value}
+          {value === 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}
         </Badge>
       ),
     },
     {
       key: 'categoryId',
-      label: 'Category',
+      label: 'Danh mục',
       sortable: true,
       render: (value: number) => {
         const category = categories.find(c => c.id === value);
@@ -149,7 +149,7 @@ export default function ProductsPage() {
     },
     {
       key: 'supplierId',
-      label: 'Supplier',
+      label: 'Nhà cung cấp',
       sortable: true,
       render: (value: number) => {
         const supplier = suppliers.find(s => s.id === value);
@@ -163,33 +163,33 @@ export default function ProductsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Products</h1>
+            <h1 className="text-3xl font-bold">Sản phẩm</h1>
             <p className="text-muted-foreground mt-2">
-              Manage your inventory products, categories, and suppliers.
+              Quản lý sản phẩm, danh mục và nhà cung cấp trong kho hàng.
             </p>
           </div>
           <div className="flex space-x-2">
             <Button onClick={() => setShowCategoryDialog(true)} variant="outline">
-              Manage Categories
+              Quản lý danh mục
             </Button>
             <Button onClick={() => setShowSupplierDialog(true)} variant="outline">
-              Manage Suppliers
+              Quản lý nhà cung cấp
             </Button>
             <Button onClick={handleAddProduct}>
               <Plus className="h-4 w-4 mr-2"/>
-              Add Product
+              Thêm sản phẩm
             </Button>
           </div>
         </div>
 
         <DataTable
-          title="Products"
+          title="Sản phẩm"
           data={products}
           columns={columns}
           onEdit={handleEditProduct}
           onDelete={handleDeleteProduct}
           loading={productsLoading}
-          searchPlaceholder="Search products..."
+          searchPlaceholder="Tìm kiếm sản phẩm..."
         />
       </div>
 
@@ -198,7 +198,7 @@ export default function ProductsPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingProduct ? 'Edit Product' : 'Create Product'}
+              {editingProduct ? 'Chỉnh sửa sản phẩm' : 'Tạo sản phẩm mới'}
             </DialogTitle>
           </DialogHeader>
           <ProductForm
@@ -216,7 +216,7 @@ export default function ProductsPage() {
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Manage Categories</DialogTitle>
+            <DialogTitle>Quản lý danh mục</DialogTitle>
           </DialogHeader>
           <CategoryForm
             onSubmit={() => {
@@ -230,7 +230,7 @@ export default function ProductsPage() {
       <Dialog open={showSupplierDialog} onOpenChange={setShowSupplierDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Manage Suppliers</DialogTitle>
+            <DialogTitle>Quản lý nhà cung cấp</DialogTitle>
           </DialogHeader>
           <SupplierForm
             onSubmit={() => {
@@ -245,8 +245,8 @@ export default function ProductsPage() {
         isOpen={deleteDialog.isOpen}
         onClose={() => setDeleteDialog({ isOpen: false, product: null })}
         onConfirm={confirmDelete}
-        title="Delete Product"
-        description="Are you sure you want to delete"
+        title="Xóa sản phẩm"
+        description="Bạn có chắc chắn muốn xóa"
         itemName={deleteDialog.product?.name}
         loading={deleteProduct.isPending}
       />

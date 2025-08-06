@@ -48,11 +48,11 @@ export function SupplierForm({
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Name *</Label>
+          <Label htmlFor="name">Tên *</Label>
           <Input
             id="name"
             {...register('name')}
-            placeholder="Supplier name"
+            placeholder="Tên nhà cung cấp"
           />
           {errors.name && (
             <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -73,11 +73,11 @@ export function SupplierForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
+          <Label htmlFor="phone">Điện thoại</Label>
           <Input
             id="phone"
             {...register('phone')}
-            placeholder="Phone number"
+            placeholder="Số điện thoại"
           />
           {errors.phone && (
             <p className="text-sm text-destructive">{errors.phone.message}</p>
@@ -85,11 +85,11 @@ export function SupplierForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="contactPerson">Contact Person</Label>
+          <Label htmlFor="contactPerson">Người liên hệ</Label>
           <Input
             id="contactPerson"
             {...register('contactPerson')}
-            placeholder="Contact person name"
+            placeholder="Tên người liên hệ"
           />
           {errors.contactPerson && (
             <p className="text-sm text-destructive">{errors.contactPerson.message}</p>
@@ -111,11 +111,11 @@ export function SupplierForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
+        <Label htmlFor="address">Địa chỉ</Label>
         <Textarea
           id="address"
           {...register('address')}
-          placeholder="Supplier address"
+          placeholder="Địa chỉ nhà cung cấp"
           rows={3}
         />
         {errors.address && (
@@ -124,11 +124,11 @@ export function SupplierForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Notes</Label>
+        <Label htmlFor="notes">Ghi chú</Label>
         <Textarea
           id="notes"
           {...register('notes')}
-          placeholder="Additional notes"
+          placeholder="Ghi chú bổ sung"
           rows={3}
         />
         {errors.notes && (
@@ -138,10 +138,10 @@ export function SupplierForm({
 
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          Hủy
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : supplier ? 'Update Supplier' : 'Create Supplier'}
+          {loading ? 'Đang lưu...' : supplier ? 'Cập nhật nhà cung cấp' : 'Tạo nhà cung cấp'}
         </Button>
       </div>
     </form>

@@ -31,7 +31,7 @@ export function Navbar() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"/>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Tìm kiếm..."
               className="w-full pl-10 pr-4 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </div>
@@ -77,16 +77,16 @@ export function Navbar() {
               <DropdownMenuSeparator/>
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4"/>
-                <span>Profile</span>
+                <span>Hồ sơ</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4"/>
-                <span>Settings</span>
+                <span>Cài đặt</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator/>
               <DropdownMenuItem onClick={handleSignOut}>
                 <LogOut className="mr-2 h-4 w-4"/>
-                <span>Log out</span>
+                <span>Đăng xuất</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

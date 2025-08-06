@@ -11,6 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useCategories, useCreateCategory, useDeleteCategory, useUpdateCategory } from '@/lib/hooks/useInventory';
 import { Category } from '@/types/inventory';
 import { Plus } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { CategoryTreeItem } from '@/components/category-tree-item';
+import { buildCategoryTree, formatCategoryName } from '@/lib/utils';
 
 export default function CategoriesPage() {
   const { data: session, status } = useSession();
@@ -38,7 +41,7 @@ export default function CategoriesPage() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <div className="flex items-center justify-center h-full">Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Đang tải...</div>;
   }
 
   if (!session) {
@@ -93,46 +96,87 @@ export default function CategoriesPage() {
   };
 
   const columns = [
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'description', label: 'Description', sortable: true },
+    { key: 'name', label: 'Tên', sortable: true },
+    { key: 'description', label: 'Mô tả', sortable: true },
+    {
+      key: 'parentId',
+      label: 'Danh mục cha',
+      sortable: true,
+      render: (value: number | null, row: Category) => {
+        if (!value) return '-';
+        const parent = categories.find(c => c.id === value);
+        return parent?.name || '-';
+      },
+    },
+    {
+      key: 'children',
+      label: 'Danh mục con',
+      sortable: false,
+      render: (value: Category[], row: Category) => {
+        if (!row.children || row.children.length === 0) return '-';
+        return row.children.map(child => child.name).join(', ');
+      },
+    },
     {
       key: 'createdAt',
-      label: 'Created',
+      label: 'Ngày tạo',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString(),
+      render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
     },
     {
       key: 'updatedAt',
-      label: 'Updated',
+      label: 'Ngày cập nhật',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString(),
+      render: (value: string) => new Date(value).toLocaleDateString('vi-VN'),
     },
   ];
+
+  // Build hierarchical tree for display
+  const categoryTree = buildCategoryTree(categories);
 
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Categories</h1>
+            <h1 className="text-3xl font-bold">Danh mục</h1>
             <p className="text-muted-foreground mt-2">
-              Organize your products by categories for better inventory management.
+              Tổ chức sản phẩm theo danh mục để quản lý kho hàng tốt hơn.
             </p>
           </div>
           <Button onClick={handleAddCategory}>
             <Plus className="h-4 w-4 mr-2"/>
-            Add Category
+            Thêm danh mục
           </Button>
         </div>
 
+        {/* Hierarchical Category Tree */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Cấu trúc danh mục</h2>
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-2">
+                {categoryTree.map((category) => (
+                  <CategoryTreeItem 
+                    key={category.id} 
+                    category={category} 
+                    onEdit={handleEditCategory}
+                    onDelete={handleDeleteCategory}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <DataTable
-          title="Categories"
+          title="Danh mục"
           data={categories}
           columns={columns}
           onEdit={handleEditCategory}
           onDelete={handleDeleteCategory}
           loading={categoriesLoading}
-          searchPlaceholder="Search categories..."
+          searchPlaceholder="Tìm kiếm danh mục..."
         />
       </div>
 
@@ -141,11 +185,12 @@ export default function CategoriesPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingCategory ? 'Edit Category' : 'Create Category'}
+              {editingCategory ? 'Chỉnh sửa danh mục' : 'Tạo danh mục mới'}
             </DialogTitle>
           </DialogHeader>
           <CategoryForm
             category={editingCategory || undefined}
+            categories={categories}
             onSubmit={editingCategory ? handleUpdateCategory : handleCreateCategory}
             onCancel={() => setShowCategoryDialog(false)}
             loading={createCategory.isPending || updateCategory.isPending}
@@ -158,8 +203,8 @@ export default function CategoriesPage() {
         isOpen={deleteDialog.isOpen}
         onClose={() => setDeleteDialog({ isOpen: false, category: null })}
         onConfirm={confirmDelete}
-        title="Delete Category"
-        description="Are you sure you want to delete"
+        title="Xóa danh mục"
+        description="Bạn có chắc chắn muốn xóa"
         itemName={deleteDialog.category?.name}
         loading={deleteCategory.isPending}
       />

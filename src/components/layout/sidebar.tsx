@@ -28,38 +28,38 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Bảng điều khiển',
     href: '/dashboard',
     icon: LayoutDashboard,
   },
   {
-    title: 'Products',
+    title: 'Sản phẩm',
     href: '/dashboard/products',
     icon: Package,
-    badge: 'New',
+    badge: 'Mới',
   },
   {
-    title: 'Categories',
+    title: 'Danh mục',
     href: '/dashboard/categories',
     icon: FolderOpen,
   },
   {
-    title: 'Suppliers',
+    title: 'Nhà cung cấp',
     href: '/dashboard/suppliers',
     icon: Truck,
   },
   {
-    title: 'Analytics',
+    title: 'Phân tích',
     href: '/dashboard/analytics',
     icon: BarChart3,
   },
   {
-    title: 'Users',
+    title: 'Người dùng',
     href: '/dashboard/users',
     icon: Users,
   },
   {
-    title: 'Settings',
+    title: 'Cài đặt',
     href: '/dashboard/settings',
     icon: Settings,
   },
@@ -79,7 +79,7 @@ export function Sidebar() {
         {!collapsed && (
           <div className="flex items-center space-x-2">
             <Package className="h-6 w-6 text-primary"/>
-            <span className="font-semibold text-lg">Inventory</span>
+            <span className="font-semibold text-lg">Quản lý kho hàng</span>
           </div>
         )}
         <Button
@@ -141,7 +141,7 @@ export function Sidebar() {
               <Home className="h-4 w-4 text-primary"/>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium">Inventory Pro</p>
+              <p className="text-sm font-medium">Quản lý kho hàng</p>
               <p className="text-xs text-muted-foreground">v1.0.0</p>
             </div>
           </div>

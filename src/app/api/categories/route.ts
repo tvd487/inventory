@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { categorySchema } from '@/lib/validations';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import {categorySchema} from "@/lib/validations/inventory";
+import {authOptions} from "@/lib/auth/authOptions";
 
 export async function GET() {
   try {
@@ -17,6 +17,8 @@ export async function GET() {
         _count: {
           select: { products: true },
         },
+        parent: true,
+        children: true,
       },
     });
 

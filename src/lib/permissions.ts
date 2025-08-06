@@ -18,10 +18,9 @@ export const ROLE_PERMISSIONS = {
   [UserRole.GUEST]: []
 } as const
 
-type Permission = (typeof ROLE_PERMISSIONS)[UserRole][number]
-
 export function hasPermission(userRole: UserRole, permission: string): boolean {
-  return ROLE_PERMISSIONS[userRole].includes(permission as Permission)
+  const permissionsForRole = ROLE_PERMISSIONS[userRole] as readonly string[];
+  return permissionsForRole.includes(permission);
 }
 
 export function canAccessAdmin(userRole: UserRole): boolean {
